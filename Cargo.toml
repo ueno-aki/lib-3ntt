@@ -5,3 +5,5 @@ edition = "2021"
 
 [dependencies]
 anyhow = "1"
+rustc-hash = "2.0"
+atomic_refcell = "0.1"
