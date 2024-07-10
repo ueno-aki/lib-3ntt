@@ -71,9 +71,12 @@ pub struct ResourceMap {
     res: FxHashMap<TypeId, AtomicRefCell<Box<dyn Resource>>>,
 }
 impl ResourceMap {
-    pub fn insert<R: Resource>(&mut self, resource: R) {
+    pub fn insert<R: Resource>(&mut self, resource: R) -> Option<R> {
         self.res
-            .insert(TypeId::of::<R>(), AtomicRefCell::new(Box::new(resource)));
+            .insert(TypeId::of::<R>(), AtomicRefCell::new(Box::new(resource)))
+            .map(AtomicRefCell::into_inner)
+            .map(|v: Box<dyn Resource>| v.downcast::<R>().unwrap_or_else(|_| unreachable!()))
+            .map(|v: Box<R>| *v) // DerefMove
     }
 
     pub fn remove<R: Resource>(&mut self) -> Option<R> {
@@ -81,7 +84,7 @@ impl ResourceMap {
             .remove(&TypeId::of::<R>())
             .map(AtomicRefCell::into_inner)
             .map(|v: Box<dyn Resource>| v.downcast::<R>().unwrap_or_else(|_| unreachable!()))
-            .map(|v: Box<R>| *v) // DerefMove
+            .map(|v: Box<R>| *v)
     }
 
     pub fn has_value<R: Resource>(&self) -> bool {
