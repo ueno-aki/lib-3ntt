@@ -4,7 +4,7 @@ pub mod resource;
 
 #[derive(Default)]
 pub struct World {
-    resources: ResourceMap,
+    pub resources: ResourceMap,
 }
 
 impl World {
